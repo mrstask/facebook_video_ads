@@ -1,0 +1,9 @@
+venv/
+__pycache__/
+.idea/
+dev/
+example.png
+.gitignore
+settings.py
+fb_script/
+fb_script.zip

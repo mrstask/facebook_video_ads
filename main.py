@@ -3,6 +3,7 @@ from campaign_creation import create_campaign
 from custom_audience import create_custom_audience, add_users_mk
 from ad_set_creation import create_ad_set
 from creative_creation import create_video_creation, video_upload
+from add_video_to_group import add_creative_to_group
 import time
 
 filename = 'samples/campaign for api.csv'
@@ -35,19 +36,31 @@ with open(filename, newline='') as f:
             created_campaigns[campaign_name] = campaign_id
             time.sleep(5)
 
+        # create custom audience
         custom_audience_id = create_custom_audience(audience_name)
         add_users_mk(custom_audience_id, audience_name, audience)
         print('Custom audience created, id is: ', custom_audience_id)
         time.sleep(5)
 
+        # create adset
         ad_set_id = create_ad_set(created_campaigns[campaign_name], custom_audience_id)['id']
         print('AdSet created, id is: ', ad_set_id)
         time.sleep(5)
 
-        # video_id = video_upload(path)
-        # print('Video is uploaded, id is: ', video_id)
-        # video_creation_id = create_video_creation(video_id, image_url, page_id)['id']
-        # print(video_creation_id)
+        # upload video
+        video_id = video_upload(path)
+        print('Video is uploaded, id is: ', video_id)
+
+        # create creative creation
+        video_creation_id = create_video_creation(video_id, image_url, page_id)['id']
+        print('Video creation id is: ', video_creation_id)
+        time.sleep(5)
+
+        # add video to group and publish ad
+        creative_group_id = add_creative_to_group(ad_set_id, video_creation_id)
+        print('Video is uploaded, id is: ', creative_group_id)
+
+
         # todo write everything to db
         result[campaign_name] = [campaign_name, created_campaigns[campaign_name],
                                  custom_audience_id, ad_set_id]

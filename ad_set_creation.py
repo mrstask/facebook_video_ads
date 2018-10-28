@@ -28,16 +28,15 @@ def create_ad_set(campaign_id, audience_id, audience_name):
             AdSet.Field.billing_event: AdSet.BillingEvent.video_views,
             AdSet.Field.bid_amount: 100,
             AdSet.Field.targeting: {
-             "geo_locations": {
-               "countries": ["UA"],
-             },
-             "age_min": 18,
-             "age_max": 65,
-             "custom_audiences": [
-                     {
-                         "id": audience_id}]},
+                "geo_locations": {
+                    "countries": ["UA"],
+                },
+                "age_min": 18,
+                "age_max": 65,
+                "publisher_platforms": ['facebook'],
+                "custom_audiences": [{"id": audience_id}]},
             Targeting.Field.device_platforms: ['mobile', 'desktop'],
-            }
+        }
         return AdAccount(f'act_{ad_account}').create_ad_set(fields=fields, params=params)
     except Exception as e:
         print(type(e))

@@ -7,15 +7,7 @@ from facebook_business.adobjects.adcreativevideodata import AdCreativeVideoData
 from facebook_business.adobjects.adaccount import AdAccount
 import time
 
-
 from settings import ad_account, my_access_token
-
-
-image_url = 'https://scontent.fiev5-1.fna.fbcdn.net/v/t1.0-9/c0.0.409.409/20155695_1703818186327573_' \
-            '1330708989496355145_n.jpg?_nc_cat=109&_nc_ht=scontent.fiev5-1.fna&oh=88ac809ec5e6a4f345b650' \
-            'f8d575fd83&oe=5C4EF6F8'
-page_id = '723430371025671'
-path = 'samples/SampleVideo_360x240_1mb.mp4'
 
 
 def create_video_creation(video_id, image_url, page_id):
@@ -66,6 +58,11 @@ def creation_list():
 if __name__ == '__main__':
     # print(creation_list())
     video_id = '301667993765449'
+    image_url = 'https://scontent.fiev5-1.fna.fbcdn.net/v/t1.0-9/c0.0.409.409/20155695_1703818186327573_' \
+                '1330708989496355145_n.jpg?_nc_cat=109&_nc_ht=scontent.fiev5-1.fna&oh=88ac809ec5e6a4f345b650' \
+                'f8d575fd83&oe=5C4EF6F8'
+    page_id = '723430371025671'
+    path = 'samples/SampleVideo_360x240_1mb.mp4'
     # print(video_id)
     # video_id = video_upload(path)
     # print(video_id)

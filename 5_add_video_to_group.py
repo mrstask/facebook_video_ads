@@ -4,8 +4,8 @@ from facebook_business.api import FacebookAdsApi
 from settings import ad_account, my_access_token
 
 
-ad_set_id = '23843061811670774'
-ad_creative_id = '23843061817050774'
+ad_set_id = '23843061830090774'
+ad_creative_id = '23843061833550774'
 
 
 def add_creative_to_group(ad_set_id, ad_creative_id):
@@ -25,10 +25,10 @@ def add_creative_to_group(ad_set_id, ad_creative_id):
 
 def list_creative():
     FacebookAdsApi.init(access_token=my_access_token)
-    return AdAccount(f'act_{ad_account}').get_ad_sets()
+    return AdAccount(f'act_{ad_account}').get_campaigns()
 
 
 if __name__ == '__main__':
-    # print(list_creative())
-    print(add_creative_to_group(ad_set_id, ad_creative_id))
+    print(list_creative())
+    # print(add_creative_to_group(ad_set_id, ad_creative_id))
 

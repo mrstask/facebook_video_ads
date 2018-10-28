@@ -4,26 +4,48 @@ from settings import my_access_token, my_app_id, my_app_secret, ad_account
 
 
 def create_campaign(name):
-    FacebookAdsApi.init(my_app_id, my_app_secret, my_access_token)
-    my_account = AdAccount(f'act_{ad_account}')
+    try:
+        FacebookAdsApi.init(my_app_id, my_app_secret, my_access_token)
+        my_account = AdAccount(f'act_{ad_account}')
 
-    fields = [
-    ]
-    params = {
-        'name': name,
-        'objective': 'VIDEO_VIEWS',
-        'status': 'PAUSED',
-    }
-    return my_account.create_campaign(
-        fields=fields,
-        params=params,
-    )
+        fields = [
+        ]
+        params = {
+            'name': name,
+            'objective': 'VIDEO_VIEWS',
+            'status': 'PAUSED',
+        }
+        return my_account.create_campaign(
+            fields=fields,
+            params=params,
+        )
+    except Exception as e:
+        print(type(e))
 
 
 def list_campaigns():
     FacebookAdsApi.init(my_app_id, my_app_secret, my_access_token)
     my_account = AdAccount(f'act_{ad_account}')
-    fields = ['id', 'name']
+    fields = ['account_id',
+              'budget_rebalance_flag',
+              'budget_remaining',
+              'buying_type',
+              'can_create_brand_lift_study',
+              'can_use_spend_cap',
+              'configured_status',
+              'created_time',
+              'effective_status',
+              'id',
+              'name',
+              'objective',
+              'recommendations',
+              'source_campaign',
+              'source_campaign_id',
+              'spend_cap',
+              'start_time',
+              'status',
+              'updated_time',
+    ]
     return my_account.get_campaigns(fields=fields)
 
 

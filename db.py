@@ -1,29 +1,40 @@
 import sqlalchemy as sa
 
-TABLE_NAME = 'stask_meta'
+TABLE_NAME = 'fb_campaigns'
+TABLE_NAME_2 = 'fb_audience'
+
 
 metadata = sa.MetaData()
-# todo create database and paste my connection data
-connection = {'user': '', 'database': '', 'host': '', 'password': ''}
+connection = {'user': 'stask', 'database': 'myproject', 'host': 'localhost', 'password': 'trololo123'}
 dsn = 'postgresql://{user}:{password}@{host}/{database}'.format(**connection)
 engine = sa.create_engine(dsn)
 metadata.bind = engine
 
-
-
-parse_results = sa.Table(
+campaigns = sa.Table(
     TABLE_NAME, metadata,
     sa.Column('id', sa.Integer, primary_key=True),
-    sa.Column('campaign name', sa.String),
+    sa.Column('campaign_name', sa.String),
     sa.Column('adgroup', sa.String),
     sa.Column('description', sa.String),
-    sa.Column('page_id', sa.String),
     sa.Column('link_video', sa.String),
-    sa.Column('audience_name', sa.String),
-    sa.Column('campaign_id', sa.String),
-    sa.Column('custom_audience_id', sa.String),
+    sa.Column('destination_url', sa.String),
+    sa.Column('campaign_id', sa.BIGINT),
+    sa.Column('custom_audience_id', sa.BIGINT),
     sa.Column('add_users_mk', sa.Boolean, default=False),
-    sa.Column('checked', sa.Boolean),
+    sa.Column('ad_set_id', sa.BIGINT),
+    sa.Column('video_id', sa.BIGINT),
+    sa.Column('video_creation_id', sa.BIGINT),
+    sa.Column('creative_group_id', sa.BIGINT),
+    sa.Column('done', sa.Boolean, default=False),
+    )
+
+audience = sa.Table(
+    TABLE_NAME_2, metadata,
+    sa.Column('id', sa.Integer, primary_key=True),
+    sa.Column('audience_name', sa.String),
+    sa.Column('email', sa.String),
+    sa.Column('phone', sa.String),
+    sa.Column('done', sa.Boolean, default=False),
     )
 
 if __name__ == '__main__':

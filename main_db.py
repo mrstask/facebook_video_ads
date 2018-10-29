@@ -1,56 +1,106 @@
 import csv
+import time
 from campaign_creation import create_campaign
 from custom_audience import create_custom_audience, add_users_mk
 from ad_set_creation import create_ad_set
 from creative_creation import create_video_creation, video_upload
-import time
+from add_video_to_group import add_creative_to_group
+import sqlalchemy as sa
 
-filename = 'samples/campaign for api.csv'
-image_url = 'https://scontent.fiev5-1.fna.fbcdn.net/v/t1.0-9/c0.0.409.409/20155695_1703818186327573_' \
-            '1330708989496355145_n.jpg?_nc_cat=109&_nc_ht=scontent.fiev5-1.fna&oh=88ac809ec5e6a4f345b650' \
-            'f8d575fd83&oe=5C4EF6F8'
-path = 'samples/SampleVideo_360x240_1mb.mp4'
+from db import engine, campaigns, audience
 
-result = dict()
-audience = list()
-created_campaigns = dict()
 
-with open('samples/campaign for api - audience.csv', newline='') as f:
-    file_reader = csv.reader(f, delimiter=',', quotechar='|')
-    next(file_reader, None)
-    for line in file_reader:
-        if line:
-            audience.append(line)
+conn = engine.connect()
+# create campaign
+created_campaigns = conn.execute(sa.select([campaigns.c.id]).where(campaigns.c.campaign_id != None)).fetchall()
+camp_name = conn.execute(sa.select([campaigns.c.campaign_name]).where(campaigns.c.campaign_id == None)).fetchone()[0]
+if camp_name not in created_campaigns:
+    campaign_id = create_campaign(camp_name)['id']
+    conn.execute(campaigns.update().where(campaigns.c.campaign_name.match(camp_name)).values(campaign_id=campaign_id))
+    print('Campaign created, id is: ', campaign_id)
+    time.sleep(10)
 
-with open(filename, newline='') as f:
-    file_reader = csv.reader(f, delimiter=',', quotechar='|')
-    next(file_reader, None)
-    for line in file_reader:
-        # get cells of csv string
-        campaign_name, adgroup, image_url, description, page_id, link_video, device_cat, audience_name = line
-        # if there are no campaign with this name, create one
-        if campaign_name not in created_campaigns.keys():
-            campaign_id = create_campaign(campaign_name)['id']
-            print('Campaign created, id is: ', campaign_id)
-            created_campaigns[campaign_name] = campaign_id
-            time.sleep(5)
+# create audience
+audience_name = conn.execute(sa.select([campaigns.c.adgroup]).
+                         where(sa.and_(campaigns.c.campaign_id != None,
+                                       campaigns.c.adgroup != None))).fetchone()[0]
+custom_audience_id = create_custom_audience(audience_name)
+conn.execute(campaigns.update().
+             where(campaigns.c.adgroup.match(audience_name)).values(custom_audience_id=custom_audience_id))
 
-        custom_audience_id = create_custom_audience(audience_name)
-        add_users_mk(custom_audience_id, audience_name, audience)
-        print('Custom audience created, id is: ', custom_audience_id)
-        time.sleep(5)
+# add users to group
+aud_to_go = conn.execute(audience.select().
+                         where(audience.c.audience_name == audience_name)).fetchall()
 
-        ad_set_id = create_ad_set(created_campaigns[campaign_name], custom_audience_id)['id']
-        print('AdSet created, id is: ', ad_set_id)
-        time.sleep(5)
+used_ids = add_users_mk(custom_audience_id, aud_to_go)
+print('Custom audience created, id is: ', custom_audience_id)
+conn.execute(campaigns.update().where(
+    campaigns.c.custom_audience_id.match('23843068891810774')
+).values(
+    add_users_mk=True)
+)
 
-        # video_id = video_upload(path)
-        # print('Video is uploaded, id is: ', video_id)
-        # video_creation_id = create_video_creation(video_id, image_url, page_id)['id']
-        # print(video_creation_id)
-        # todo write everything to db
-        result[campaign_name] = [campaign_name, created_campaigns[campaign_name],
-                                 custom_audience_id, ad_set_id]
+time.sleep(10)
 
-print(result)
+
+campaign_id, custom_audience_id, audience_name = conn.execute(sa.select(
+    [campaigns.c.campaign_id, campaigns.c.custom_audience_id, campaigns.c.adgroup]
+).where(
+    sa.and_(campaigns.c.ad_set_id == None, campaigns.c.custom_audience_id != None))).fetchone()
+
+ad_set_id = create_ad_set(campaign_id, custom_audience_id, audience_name)['id']
+
+print(ad_set_id)
+conn.execute(campaigns.update().where(
+    campaigns.c.custom_audience_id.match(custom_audience_id)
+).values(
+    ad_set_id=ad_set_id)
+)
+print('AdSet created, id is: ', ad_set_id)
+time.sleep(10)
+
+filename, custom_audience_id = conn.execute(sa.select(
+    [campaigns.c.adgroup, campaigns.c.custom_audience_id]
+).where(
+    sa.and_(campaigns.c.video_id == None, campaigns.c.ad_set_id != None))).fetchone()
+filename = 'samples/' + filename + '.mp4'
+video_id = video_upload(filename)
+print('Video is uploaded, id is: ', video_id)
+conn.execute(campaigns.update().where(
+    campaigns.c.custom_audience_id.match(custom_audience_id)
+).values(
+    video_id=str(video_id))
+)
+adgroup, video_id, destination_url, description = conn.execute(sa.select(
+    [campaigns.c.adgroup, campaigns.c.video_id, campaigns.c.destination_url, campaigns.c.description]
+).where(
+    sa.and_(campaigns.c.video_creation_id == None, campaigns.c.video_id != None))).fetchone()
+print(adgroup,video_id,destination_url, description)
+page_id = '723430371025671'
+video_creation_id = create_video_creation(video_id, destination_url, description, adgroup, page_id)
+print(video_creation_id)
+conn.execute(campaigns.update().where(
+    campaigns.c.video_id.match(video_id)
+).values(
+    video_creation_id=str(ad_creation_id))
+)
+ad_set_id, ad_creative_id = conn.execute(sa.select(
+    [campaigns.c.ad_set_id, campaigns.c.video_creation_id]
+).where(
+    sa.and_(campaigns.c.creative_group_id == None, campaigns.c.video_creation_id != None))).fetchone()
+
+creative_group_id = add_creative_to_group(ad_set_id, ad_creative_id)
+conn.execute(campaigns.update().where(
+    campaigns.c.video_creation_id.match(ad_creative_id)
+).values(
+    creative_group_id=str(creative_group_id))
+)
+
+
+
+
+
+
+
+
 

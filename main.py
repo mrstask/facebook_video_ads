@@ -60,10 +60,3 @@ with open(filename, newline='') as f:
         creative_group_id = add_creative_to_group(ad_set_id, video_creation_id)
         print('Video is uploaded, id is: ', creative_group_id)
 
-
-        # todo write everything to db
-        result[campaign_name] = [campaign_name, created_campaigns[campaign_name],
-                                 custom_audience_id, ad_set_id]
-
-print(result)
-

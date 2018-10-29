@@ -2,7 +2,6 @@ from facebook_business.adobjects.adaccount import AdAccount
 from facebook_business.adobjects.customaudience import CustomAudience
 from facebook_business.api import FacebookAdsApi
 from settings import my_access_token, my_app_id, my_app_secret, ad_account
-import csv
 
 
 def create_custom_audience(name):
@@ -22,26 +21,25 @@ def create_custom_audience(name):
         print(type(e))
 
 
-def add_users_mk(ca_id, name, users):
-    try:
+def add_users_mk(ca_id, users):
         FacebookAdsApi.init(my_app_id, my_app_secret, my_access_token)
         audience = CustomAudience(ca_id)
         audience_to_query = list()
+        used_ids = list()
 
         for line in users:
-            if line[0].strip() == name.strip():
-                aud_name, email, phone = line
-                audience_to_query.append([email, phone])
+            contact_id, aud_name, email, phone, used = line
+            audience_to_query.append([email, phone])
+            used_ids.append(contact_id)
 
         schema = [
             CustomAudience.Schema.MultiKeySchema.email,
             CustomAudience.Schema.MultiKeySchema.phone
         ]
 
-        audience.add_users(schema, audience_to_query, is_raw=True)
+        audience.add_users(schema, audience_to_query, is_raw=True, pre_hashed=True)
+        print(used_ids)
         return audience.get_id()
-    except Exception as e:
-        print(type(e))
 
 
 def list_custom_audiences():

@@ -15,12 +15,13 @@ def create_campaign(name):
             'objective': 'VIDEO_VIEWS',
             'status': 'PAUSED',
         }
-        return my_account.create_campaign(
+        create_campaign_id = my_account.create_campaign(
             fields=fields,
             params=params,
         )
+        return create_campaign_id['id']
     except Exception as e:
-        print(type(e))
+        print(e)
 
 
 def list_campaigns():

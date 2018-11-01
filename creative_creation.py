@@ -7,7 +7,9 @@ from facebook_business.adobjects.adcreativevideodata import AdCreativeVideoData
 from facebook_business.adobjects.adaccount import AdAccount
 from facebook_business.adobjects.adimage import AdImage
 import time
-
+import urllib3
+import certifi
+from unidecode import unidecode
 from settings import ad_account, my_access_token
 
 
@@ -44,7 +46,6 @@ def create_video_creation(video_id, destination_url, description, adgroup, page_
     return creative.remote_create()['id']
 
 
-
 def video_upload(file_path, name):
     FacebookAdsApi.init(access_token=my_access_token)
     video = AdVideo(parent_id=f'act_{ad_account}')
@@ -66,15 +67,35 @@ def creation_list():
     return AdAccount(f'act_{ad_account}').get_ad_creatives(fields=fields)
 
 
+def video_download(url, file_name):
+    url = url.split('/')[5]
+    url = f'https://drive.google.com/uc?authuser=0&id={url}&export=download'
+    file_name = unidecode(file_name).replace(' ', "_")
+    file_name = f'samples/video/{file_name}.mp4'
+    http = urllib3.PoolManager(
+        cert_reqs='CERT_REQUIRED',
+        ca_certs=certifi.where())
+    r = http.request('GET', url, preload_content=False)
+    with open(file_name, 'wb') as out:
+        while True:
+            data = r.read()
+            if not data:
+                break
+            out.write(data)
+    r.release_conn()
+    return file_name
+
+
 if __name__ == '__main__':
     video_id = '301667993765449'
     image_url = 'https://scontent.fiev5-1.fna.fbcdn.net/v/t1.0-9/c0.0.409.409/20155695_1703818186327573_' \
                 '1330708989496355145_n.jpg?_nc_cat=109&_nc_ht=scontent.fiev5-1.fna&oh=88ac809ec5e6a4f345b650' \
                 'f8d575fd83&oe=5C4EF6F8'
     page_id = '723430371025671'
-    path = 'samples/SampleVideo_360x240_1mb.mp4'
+    path = 'samples/video/ruslan_litvinenko.mp4'
     # print(creation_list())
     # print(video_id)
-    # video_id = video_upload(path)
+    # video_id = video_upload(path, 'some-2')
+    # video_download()
     # print(video_id)
-    print(create_video_creation(video_id, image_url, page_id))
+    # print(create_video_creation(video_id, image_url, page_id))

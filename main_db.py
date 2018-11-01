@@ -11,43 +11,40 @@ from db import engine, campaigns, audience
 
 
 conn = engine.connect()
-# create campaign
-created_campaigns = conn.execute(sa.select([campaigns.c.id]).where(campaigns.c.campaign_id != None)).fetchall()
+# 1. campaign creation
 camp_name = conn.execute(sa.select([campaigns.c.campaign_name]).where(campaigns.c.campaign_id == None)).fetchone()[0]
-if camp_name not in created_campaigns:
-    campaign_id = create_campaign(camp_name)['id']
+if camp_name:
+    campaign_id = create_campaign(camp_name)
     conn.execute(campaigns.update().where(campaigns.c.campaign_name.match(camp_name)).values(campaign_id=campaign_id))
-    print('Campaign created, id is: ', campaign_id)
     time.sleep(10)
 
 # create audience
 audience_name = conn.execute(sa.select([campaigns.c.adgroup]).
                          where(sa.and_(campaigns.c.campaign_id != None,
                                        campaigns.c.adgroup != None))).fetchone()[0]
-custom_audience_id = create_custom_audience(audience_name)
-conn.execute(campaigns.update().
-             where(campaigns.c.adgroup.match(audience_name)).values(custom_audience_id=custom_audience_id))
+if audience_name:
+    custom_audience_id = create_custom_audience(audience_name)
+    conn.execute(campaigns.update().
+                 where(campaigns.c.adgroup.match(audience_name)).values(custom_audience_id=custom_audience_id))
 
 # add users to group
 aud_to_go = conn.execute(audience.select().
-                         where(audience.c.audience_name == audience_name)).fetchall()
-
-used_ids = add_users_mk(custom_audience_id, aud_to_go)
-print('Custom audience created, id is: ', custom_audience_id)
-conn.execute(campaigns.update().where(
-    campaigns.c.custom_audience_id.match('23843068891810774')
-).values(
-    add_users_mk=True)
-)
-
+                             where(audience.c.audience_name == audience_name)).fetchall()
+if aud_to_go:
+    used_ids = add_users_mk(custom_audience_id, aud_to_go)
+    conn.execute(campaigns.update().where(
+        campaigns.c.custom_audience_id.match(custom_audience_id)
+    ).values(
+        add_users_mk=True)
+    )
 time.sleep(10)
 
-
+# creating adset
 campaign_id, custom_audience_id, audience_name = conn.execute(sa.select(
     [campaigns.c.campaign_id, campaigns.c.custom_audience_id, campaigns.c.adgroup]
 ).where(
     sa.and_(campaigns.c.ad_set_id == None, campaigns.c.custom_audience_id != None))).fetchone()
-
+print(campaign_id, custom_audience_id, audience_name)
 ad_set_id = create_ad_set(campaign_id, custom_audience_id, audience_name)['id']
 
 print(ad_set_id)
@@ -63,8 +60,8 @@ filename, custom_audience_id = conn.execute(sa.select(
     [campaigns.c.adgroup, campaigns.c.custom_audience_id]
 ).where(
     sa.and_(campaigns.c.video_id == None, campaigns.c.ad_set_id != None))).fetchone()
-filename = 'samples/' + filename + '.mp4'
-video_id = video_upload(filename)
+path = 'samples/video/' + filename + '.mp4'
+video_id = video_upload(path, filename)
 print('Video is uploaded, id is: ', video_id)
 conn.execute(campaigns.update().where(
     campaigns.c.custom_audience_id.match(custom_audience_id)

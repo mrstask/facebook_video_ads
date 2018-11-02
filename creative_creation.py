@@ -6,6 +6,7 @@ from facebook_business.adobjects.adcreativeobjectstoryspec import AdCreativeObje
 from facebook_business.adobjects.adcreativevideodata import AdCreativeVideoData
 from facebook_business.adobjects.adaccount import AdAccount
 from facebook_business.adobjects.adimage import AdImage
+import os
 import time
 import urllib3
 import certifi
@@ -14,6 +15,11 @@ from settings import ad_account, my_access_token
 
 
 def image_upload(image_path):
+    print(image_path)
+    if not os.path.isfile(image_path):
+        new_name = unidecode(image_path)
+        os.rename(image_path, new_name)
+        image_path = new_name
     FacebookAdsApi.init(access_token=my_access_token)
     image = AdImage(parent_id=f'act_{ad_account}')
     image[AdImage.Field.filename] = image_path
@@ -88,11 +94,9 @@ def video_download(url, file_name):
 
 if __name__ == '__main__':
     video_id = '301667993765449'
-    image_url = 'https://scontent.fiev5-1.fna.fbcdn.net/v/t1.0-9/c0.0.409.409/20155695_1703818186327573_' \
-                '1330708989496355145_n.jpg?_nc_cat=109&_nc_ht=scontent.fiev5-1.fna&oh=88ac809ec5e6a4f345b650' \
-                'f8d575fd83&oe=5C4EF6F8'
     page_id = '723430371025671'
     path = 'samples/video/ruslan_litvinenko.mp4'
+    image_upload('/home/stask/PycharmProjects/facebook_app/samples/images/Сергей_Бабёнышев.png')
     # print(creation_list())
     # print(video_id)
     # video_id = video_upload(path, 'some-2')

@@ -4,11 +4,11 @@ from facebook_business.api import FacebookAdsApi
 from settings import ad_account, my_access_token
 
 
-def add_creative_to_group(ad_set_id, ad_creative_id):
+def add_creative_to_group(ad_set_id, ad_creative_id, name):
     FacebookAdsApi.init(access_token=my_access_token)
     fields = []
     params = {
-        'name': 'My Ad',
+        'name': name,
         'adset_id': ad_set_id,
         'creative': {'creative_id': ad_creative_id},
         'status': 'PAUSED',

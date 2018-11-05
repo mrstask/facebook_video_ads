@@ -6,6 +6,7 @@ from facebook_business.adobjects.adcreativeobjectstoryspec import AdCreativeObje
 from facebook_business.adobjects.adcreativevideodata import AdCreativeVideoData
 from facebook_business.adobjects.adaccount import AdAccount
 from facebook_business.adobjects.adimage import AdImage
+from pprint import pprint
 import os
 import time
 import urllib3
@@ -15,14 +16,29 @@ from settings import ad_account, my_access_token
 
 
 def image_upload(image_path):
+    files = list()
+    image_path = unidecode(image_path)
     print(image_path)
-    if not os.path.isfile(image_path):
-        new_name = unidecode(image_path)
-        os.rename(image_path, new_name)
-        image_path = new_name
+    if not os.path.isfile(f'samples/images/{image_path}.png'):
+        for file in os.listdir('samples/images/'):
+            if file.startswith(image_path.split('_')[0]):
+                files.append(file)
+        for file in os.listdir('samples/images/'):
+            if file.startswith(image_path[0:3]):
+                files.append(file)
+        if not files:
+            for file in os.listdir('samples/images/'):
+                if file.startswith(image_path[0]):
+                    files.append(file)
+        pprint(files)
+        image_path = input('Set valid path: ')
+
     FacebookAdsApi.init(access_token=my_access_token)
     image = AdImage(parent_id=f'act_{ad_account}')
-    image[AdImage.Field.filename] = image_path
+    if image_path.endswith('.png'):
+        image[AdImage.Field.filename] = f'samples/images/{image_path}'
+    else:
+        image[AdImage.Field.filename] = f'samples/images/{image_path}.png'
     image.remote_create()
     image_hash = image[AdImage.Field.hash]
     return image_hash
@@ -33,7 +49,7 @@ def create_video_creation(video_id, destination_url, description, adgroup, page_
     video_data = AdCreativeVideoData()
     # video_data[AdCreativeVideoData.Field.description] = description
     video_data[AdCreativeVideoData.Field.video_id] = video_id
-    image_hash = image_upload(f'samples/images/{adgroup}.png')
+    image_hash = image_upload(adgroup)
     video_data[AdCreativeVideoData.Field.image_hash] = image_hash
     video_data[AdCreativeVideoData.Field.call_to_action] = {
         'type': 'LIKE_PAGE',
@@ -96,7 +112,7 @@ if __name__ == '__main__':
     video_id = '301667993765449'
     page_id = '723430371025671'
     path = 'samples/video/ruslan_litvinenko.mp4'
-    image_upload('/home/stask/PycharmProjects/facebook_app/samples/images/Сергей_Бабёнышев.png')
+    image_upload('/home/stask/PycharmProjects/facebook_app/samples/images/Alekandr_Andrusik.png')
     # print(creation_list())
     # print(video_id)
     # video_id = video_upload(path, 'some-2')

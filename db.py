@@ -1,11 +1,12 @@
 import sqlalchemy as sa
+from settings import audience_table_name, campaign_table_name, connection_data
 
-TABLE_NAME = 'fb_campaigns'
-TABLE_NAME_2 = 'fb_audience'
+TABLE_NAME = campaign_table_name
+TABLE_NAME_2 = audience_table_name
 
 
 metadata = sa.MetaData()
-connection = {'user': 'stask', 'database': 'myproject', 'host': 'localhost', 'password': 'trololo123'}
+connection = connection_data
 dsn = 'postgresql://{user}:{password}@{host}/{database}'.format(**connection)
 engine = sa.create_engine(dsn)
 metadata.bind = engine

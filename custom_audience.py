@@ -74,7 +74,7 @@ def list_custom_audiences():
 if __name__ == '__main__':
     print(list_custom_audiences())
     # audience_l = list()
-    # with open('samples/campaign for api - audience.csv', newline='') as f:
+    # with open('samples/audience.csv', newline='') as f:
     #     file_reader = csv.reader(f, delimiter=',', quotechar='|')
     #     next(file_reader, None)
     #     for line in file_reader:

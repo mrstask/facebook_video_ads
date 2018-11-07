@@ -30,8 +30,9 @@ def image_upload(image_path):
             for file in os.listdir('samples/images/'):
                 if file.startswith(image_path[0]):
                     files.append(file)
-        pprint(files)
-        image_path = input('Set valid path: ')
+        # pprint(files)
+        # image_path = input('Set valid path: ')
+        image_path = files[0]
 
     FacebookAdsApi.init(access_token=my_access_token)
     image = AdImage(parent_id=f'act_{ad_account}')
@@ -112,7 +113,7 @@ if __name__ == '__main__':
     video_id = '301667993765449'
     page_id = '723430371025671'
     path = 'samples/video/ruslan_litvinenko.mp4'
-    image_upload('/home/stask/PycharmProjects/facebook_app/samples/images/Alekandr_Andrusik.png')
+    image_upload('/home/stask/PycharmProjects/facebook_app/samples/images/Ivan_Omelchenko.png')
     # print(creation_list())
     # print(video_id)
     # video_id = video_upload(path, 'some-2')

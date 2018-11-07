@@ -11,7 +11,8 @@ from db_queries import get_campaign_name, set_campaign_id, get_audience_name, se
 
 
 page_id = '723430371025671'
-for _ in range(10):
+for i in range(100):
+    print(i)
     # 1. campaign creation
     if get_campaign_name():
         campaign_name = get_campaign_name()
